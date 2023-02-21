@@ -511,4 +511,4 @@ cython_debug/
 #.idea/
 
 # Configuration file secrets
-goodwe_api_config.json
+# goodwe_api_config.json

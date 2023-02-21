@@ -2,10 +2,11 @@ from goodwe_connector.goodwe_api import GoodweApi
 import datetime
 import configparser
 
-# Read configuration
+# Read secrets configuration file
 config = configparser.ConfigParser()
-config.read('goodw_api_config.json')
+config.read('goodwe_api_config.json')
 
+# Get credentials
 system_id = config['goowdw_api_connection']['system_id']
 user = config['goowdw_api_connection']['account']
 password = config['goowdw_api_connection']['password']

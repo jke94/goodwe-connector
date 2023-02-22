@@ -4,7 +4,7 @@ import configparser
 
 # Read secrets configuration file
 config = configparser.ConfigParser()
-config.read('goodwe_api_config.json')
+config.read('goodwe_config.json')
 
 # Get credentials
 system_id = config['goowdw_api_connection']['system_id']

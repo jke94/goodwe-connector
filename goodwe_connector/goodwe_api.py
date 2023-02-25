@@ -1,3 +1,4 @@
+import datetime
 from goodwe_connector.goodwe_constants import GOODWE_API_URL
 from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
@@ -8,8 +9,22 @@ import json
 import requests
 
 class GoodweApi:
+    """_summary_
+    """
 
-    def __init__(self, system_id, account, password, logging=False) -> None:
+    def __init__(self,
+                 system_id:str, 
+                 account:str, 
+                 password:str, 
+                 logging=False) -> None:
+        """_summary_
+
+        Args:
+            system_id (str): _description_
+            account (str): _description_
+            password (str): _description_
+            logging (bool, optional): _description_. Defaults to False.
+        """
         
         self.__headers = {
             'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
@@ -86,8 +101,16 @@ class GoodweApi:
             self.__logger.warning(f'{e}')
             return None
 
-    def get_power_generation_per_day(self, date) -> float:
+    def get_power_generation_per_day(self, date:datetime) -> float:
+        """_summary_
 
+        Args:
+            date (datetime): _description_
+
+        Returns:
+            float: _description_
+        """
+        
         payload = {
             'powerstation_id' : self.system_id,
             'date' : date.strftime('%Y-%m-%d')

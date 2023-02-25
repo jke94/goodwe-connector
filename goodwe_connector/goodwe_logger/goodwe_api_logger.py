@@ -2,14 +2,14 @@ import logging
 
 class GoodweApiLogger:
 
-    def __init__(self, logging) -> None:
-        
-        self.__logging = logging
+    def __init__(self, isLogging) -> None:
         
         logging.basicConfig(
             filename='goodwe-connector.log', 
             encoding='utf-8', 
             level=logging.DEBUG)
+        
+        self.__logging = isLogging
     
     def info(self, msg, *args, **kwargs):
         
@@ -17,5 +17,6 @@ class GoodweApiLogger:
             logging.info(msg, *args, **kwargs)
     
     def warning(self, msg, *args, **kwargs):
+        
         if (self.__logging):
             logging.warning(msg, *args, **kwargs)

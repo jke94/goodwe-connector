@@ -1,4 +1,6 @@
-from goodwe_connector.goodwe_constants import GOODWE_API_HEADER,GOODWE_API_TOKEN, GOODWE_API_URL
+from goodwe_connector.goodwe_constants import GOODWE_API_URL
+from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
+from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
 from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
 from requests.exceptions import RequestException
 from json import JSONDecodeError
@@ -9,20 +11,20 @@ class GoodweApi:
 
     def __init__(self, system_id, account, password, logging=False) -> None:
         
-        self.__global_url = 'https://semsportal.com/api/'
         self.__headers = {
             'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
             'Token': '{"version":"v3.1","client":"ios","language":"en"}',
         }
-
+        
+        self.__global_url = GOODWE_API_URL
         self.system_id = system_id
         self.account = account
         self.password = password
         self.base_url = self.__global_url
-        self.token = ''
+        self.__token = ''
         self.__n_max_request_retry = 5
         
-        self.__logger = GoodweApiLogger(logging)
+        self.__logger = GoodweApiLogger(isLogging=logging)
 
     def __login(self, url, payload) -> dict:
         
@@ -34,7 +36,7 @@ class GoodweApi:
             }
 
             authrequest = requests.post(
-                self.__global_url + 'v2/Common/CrossLogin', 
+                self.__global_url + v2CommonCrossLogin, 
                 headers=self.__headers, 
                 data=loginPayload, 
                 timeout=10)
@@ -49,12 +51,16 @@ class GoodweApi:
             # Print login json result.
             # print(json.dumps(data, indent=4))
 
+            if('api' not in data):
+                self.__logger.warning(f' key: api, does not in {data}')
+                return None
+            
             self.base_url = data['api']
-            self.token = json.dumps(data['data'])
+            self.__token = json.dumps(data['data'])
 
             headers = {
                 'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-                'Token': self.token,
+                'Token': self.__token,
             }
 
             request = requests.post(
@@ -93,7 +99,7 @@ class GoodweApi:
         while(not data and count_request < self.__n_max_request_retry):
         
             count_request += 1
-            method = "v2/PowerStationMonitor/GetPowerStationPowerAndIncomeByDay"
+            method = GetPowerStationPowerAndIncomeByDay
             data = self.__login(method, payload)
         
             if not data:

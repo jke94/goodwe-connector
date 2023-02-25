@@ -70,7 +70,7 @@ class GoodweApi:
             logging.warning(f'{e}')
             return {}
         
-    def dummy_function(self, method, date):
+    def dummy_function(self, method, date) -> float:
 
         payload = {
             'powerstation_id' : self.system_id,

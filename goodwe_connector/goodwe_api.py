@@ -1,29 +1,30 @@
-from goodwe_connector.goodwe_constants import GOODWE_API_HEADER,GOODWE_API_TOKEN, GOODWE_API_URL
-import json
-import logging
-import requests
+from goodwe_connector.goodwe_constants import GOODWE_API_URL
+from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
+from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
+from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
 from requests.exceptions import RequestException
+from json import JSONDecodeError
+import json
+import requests
 
 class GoodweApi:
 
-    def __init__(self, system_id, account, password) -> None:
+    def __init__(self, system_id, account, password, logging=False) -> None:
         
-        self.__global_url = 'https://semsportal.com/api/'
         self.__headers = {
             'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
             'Token': '{"version":"v3.1","client":"ios","language":"en"}',
         }
-
+        
+        self.__global_url = GOODWE_API_URL
         self.system_id = system_id
         self.account = account
         self.password = password
         self.base_url = self.__global_url
-        self.token = ''
-
-        logging.basicConfig(
-            filename='goodwe-connector.log', 
-            encoding='utf-8', 
-            level=logging.DEBUG)
+        self.__token = ''
+        self.__n_max_request_retry = 5
+        
+        self.__logger = GoodweApiLogger(isLogging=logging)
 
     def __login(self, url, payload) -> dict:
         
@@ -35,23 +36,31 @@ class GoodweApi:
             }
 
             authrequest = requests.post(
-                self.__global_url + 'v2/Common/CrossLogin', 
+                self.__global_url + v2CommonCrossLogin, 
                 headers=self.__headers, 
                 data=loginPayload, 
                 timeout=10)
             
             authrequest.raise_for_status()
+            
+            self.__logger.info(f'Login request elapsed seconds: {authrequest.elapsed}')
+            
             data = authrequest.json()
             authrequest.close()
 
-            print(json.dumps(data, indent=4))
+            # Print login json result.
+            # print(json.dumps(data, indent=4))
 
+            if('api' not in data):
+                self.__logger.warning(f' key: api, does not in {data}')
+                return None
+            
             self.base_url = data['api']
-            self.token = json.dumps(data['data'])
+            self.__token = json.dumps(data['data'])
 
             headers = {
                 'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-                'Token': self.token,
+                'Token': self.__token,
             }
 
             request = requests.post(
@@ -61,32 +70,44 @@ class GoodweApi:
                 timeout=10)
             
             request.raise_for_status()
+            
+            self.__logger.info(f'Method request elapsed seconds: {request.elapsed}')
+            
             data = request.json()
             request.close()
 
             return data['data']
+        
+        except JSONDecodeError as json_decoder_error:
+            self.__logger.warning(f'{json_decoder_error}')
+            return None
 
         except RequestException as e:
-            logging.warning(f'{e}')
-            return {}
-        
-    def dummy_function(self, method, date):
+            self.__logger.warning(f'{e}')
+            return None
+
+    def get_power_generation_per_day(self, date) -> float:
 
         payload = {
             'powerstation_id' : self.system_id,
-            'count' : 1,
             'date' : date.strftime('%Y-%m-%d')
         }
+        
+        count_request = 0
+        data = {}
+        
+        while(not data and count_request < self.__n_max_request_retry):
+        
+            count_request += 1
+            method = GetPowerStationPowerAndIncomeByDay
+            data = self.__login(method, payload)
+        
+            if not data:
+                self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
-        data = self.__login(method, payload)
-
-        if not data:
-            logging.warning(f'Method: {method}, missing data.')
-            return 0
-
-        eday_kwh = 0
+        # Parsing data to extract the correct day.
         for day in data:
             if day['d'] == date.strftime('%m/%d/%Y'):
-                eday_kwh = day['p']
+                return day['p']
 
-        return eday_kwh
+        return -2

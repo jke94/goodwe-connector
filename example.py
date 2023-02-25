@@ -23,6 +23,9 @@ def main(json_credentials_file):
     # Read secret credentials from JSON file.
     config = read_json_config(json_credentials_file)
     
+    if(config is None):
+        return
+    
     system_id = config['goodwe_api_connection']['system_id']
     user = config['goodwe_api_connection']['account']
     password = config['goodwe_api_connection']['password']

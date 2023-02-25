@@ -3,6 +3,7 @@ import json
 import logging
 import requests
 from requests.exceptions import RequestException
+from json import JSONDecodeError
 
 class GoodweApi:
 
@@ -19,6 +20,7 @@ class GoodweApi:
         self.password = password
         self.base_url = self.__global_url
         self.token = ''
+        self.__n_max_request_retry = 5
 
         logging.basicConfig(
             filename='goodwe-connector.log', 
@@ -41,10 +43,14 @@ class GoodweApi:
                 timeout=10)
             
             authrequest.raise_for_status()
+            
+            logging.info(f'Login request elapsed seconds: {authrequest.elapsed}')
+            
             data = authrequest.json()
             authrequest.close()
 
-            print(json.dumps(data, indent=4))
+            # Print login json result.
+            # print(json.dumps(data, indent=4))
 
             self.base_url = data['api']
             self.token = json.dumps(data['data'])
@@ -61,32 +67,44 @@ class GoodweApi:
                 timeout=10)
             
             request.raise_for_status()
+            
+            logging.info(f'Method request elapsed seconds: {request.elapsed}')
+            
             data = request.json()
             request.close()
 
             return data['data']
+        
+        except JSONDecodeError as json_decoder_error:
+            logging.warning(f'{json_decoder_error}')
+            return None
 
         except RequestException as e:
             logging.warning(f'{e}')
-            return {}
-        
-    def dummy_function(self, method, date) -> float:
+            return None
+
+    def get_power_generation_per_day(self, date) -> float:
 
         payload = {
             'powerstation_id' : self.system_id,
-            'count' : 1,
             'date' : date.strftime('%Y-%m-%d')
         }
+        
+        count_request = 0
+        data = {}
+        
+        while(not data and count_request < self.__n_max_request_retry):
+        
+            count_request += 1
+            method = "v2/PowerStationMonitor/GetPowerStationPowerAndIncomeByDay"
+            data = self.__login(method, payload)
+        
+            if not data:
+                logging.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
-        data = self.__login(method, payload)
-
-        if not data:
-            logging.warning(f'Method: {method}, missing data.')
-            return 0
-
-        eday_kwh = 0
+        # Parsing data to extract the correct day.
         for day in data:
             if day['d'] == date.strftime('%m/%d/%Y'):
-                eday_kwh = day['p']
+                return day['p']
 
-        return eday_kwh
+        return -2

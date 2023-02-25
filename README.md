@@ -18,3 +18,10 @@ Example of goodwe_config.json
     }
 }
 ```
+
+## Goodew Api
+
+Goodwe Api information:
+
+- [http://www.goodwe-power.com:82/Help](http://www.goodwe-power.com:82/Help)
+- [http://www.goodwe-power.com:82/swagger/ui/index](http://www.goodwe-power.com:82/swagger/ui/index)

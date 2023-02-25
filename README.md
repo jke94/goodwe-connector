@@ -1,4 +1,6 @@
 # goodwe-connector
+![image](https://user-images.githubusercontent.com/53972851/221367514-63997c8c-b491-467b-996b-0407ff98ffba.png)
+
 A python library to connect with Goodwe API Rest and get production data of solar panels.
 
 ## A. How to use.

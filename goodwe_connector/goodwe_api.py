@@ -1,13 +1,13 @@
 from goodwe_connector.goodwe_constants import GOODWE_API_HEADER,GOODWE_API_TOKEN, GOODWE_API_URL
-import json
-import logging
-import requests
+from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
 from requests.exceptions import RequestException
 from json import JSONDecodeError
+import json
+import requests
 
 class GoodweApi:
 
-    def __init__(self, system_id, account, password) -> None:
+    def __init__(self, system_id, account, password, logging=False) -> None:
         
         self.__global_url = 'https://semsportal.com/api/'
         self.__headers = {
@@ -21,11 +21,8 @@ class GoodweApi:
         self.base_url = self.__global_url
         self.token = ''
         self.__n_max_request_retry = 5
-
-        logging.basicConfig(
-            filename='goodwe-connector.log', 
-            encoding='utf-8', 
-            level=logging.DEBUG)
+        
+        self.__logger = GoodweApiLogger(logging)
 
     def __login(self, url, payload) -> dict:
         
@@ -44,7 +41,7 @@ class GoodweApi:
             
             authrequest.raise_for_status()
             
-            logging.info(f'Login request elapsed seconds: {authrequest.elapsed}')
+            self.__logger.info(f'Login request elapsed seconds: {authrequest.elapsed}')
             
             data = authrequest.json()
             authrequest.close()
@@ -68,7 +65,7 @@ class GoodweApi:
             
             request.raise_for_status()
             
-            logging.info(f'Method request elapsed seconds: {request.elapsed}')
+            self.__logger.info(f'Method request elapsed seconds: {request.elapsed}')
             
             data = request.json()
             request.close()
@@ -76,11 +73,11 @@ class GoodweApi:
             return data['data']
         
         except JSONDecodeError as json_decoder_error:
-            logging.warning(f'{json_decoder_error}')
+            self.__logger.warning(f'{json_decoder_error}')
             return None
 
         except RequestException as e:
-            logging.warning(f'{e}')
+            self.__logger.warning(f'{e}')
             return None
 
     def get_power_generation_per_day(self, date) -> float:
@@ -100,7 +97,7 @@ class GoodweApi:
             data = self.__login(method, payload)
         
             if not data:
-                logging.warning(f'Request count={count_request}, Method: {method}, missing data.')
+                self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
         # Parsing data to extract the correct day.
         for day in data:

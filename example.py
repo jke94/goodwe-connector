@@ -23,7 +23,7 @@ def main(json_credentials_file):
     # Read secret credentials from JSON file.
     config = read_json_config(json_credentials_file)
     
-    if(config is None):
+    if(config is None): 
         return
     
     system_id = config['goodwe_api_connection']['system_id']
@@ -34,7 +34,8 @@ def main(json_credentials_file):
     goodweapi = GoodweApi(
         system_id=system_id,
         account=user,
-        password=password)
+        password=password,
+        logging=True)
 
     # Request data to the Goodwe Api.
     day = datetime.datetime(2023, 2, 14)

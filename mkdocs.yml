@@ -14,7 +14,7 @@ plugins:
   - mkdocstrings
 
 nav:
-  - Goodwe Connector Docs: index.md
+  - Readme: README.md
   - Goodwe Connector: goodwe_connector.md
   - Tutorials: tutorials.md
   - How-To Guides: how-to-guides.md

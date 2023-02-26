@@ -7,21 +7,15 @@ permissions:
   contents: write
 jobs:
   deploy:
-    name: Deploy docs
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
       - uses: actions/checkout@v3
-      - name: Python setup
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
-      - name: cache setp
       - uses: actions/cache@v2
         with:
           key: ${{ github.ref }}
           path: .cache
-      - name: Isntall requeriments.txt
       - run: pip install -r requirements.txt
-      - name: Mkdocs deploy
       - run: mkdocs gh-deploy --force

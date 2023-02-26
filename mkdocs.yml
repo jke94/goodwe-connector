@@ -1,0 +1,22 @@
+# mkdocs.yml
+
+site_name: goodwe-connector
+
+site_url: https://jke94.github.io/goodwe-connector/
+repo_name: 'jke94/goodwe-connector'
+repo_url: 'https://github.com/jke94/goodwe-connector'
+
+theme:
+  name: "material"
+
+plugins:
+  - search
+  - mkdocstrings
+
+nav:
+  - Goodwe Connector Docs: index.md
+  - Goodwe Connector: goodwe_connector.md
+  - Tutorials: tutorials.md
+  - How-To Guides: how-to-guides.md
+  - Reference: reference.md
+  - Explanation: explanation.md

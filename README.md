@@ -35,8 +35,21 @@ Similar ouput like this:
 ```
 Day 14/02/2023	Power Generated: 9.1 kW
 ```
+## B. Generate documentation.
 
-## Goodew Api
+- Build documentation:
+
+```
+mkdocs build
+```
+
+- Serve:
+
+```
+mkdocs serve
+```
+
+## C. Extra information: Goodew Api
 
 Goodwe Api information:
 

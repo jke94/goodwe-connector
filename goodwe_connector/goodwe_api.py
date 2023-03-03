@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 from goodwe_connector.goodwe_constants import GOODWE_API_URL
 from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
@@ -134,3 +135,40 @@ class GoodweApi:
                 return day['p']
 
         return -2
+    
+    def get_power_generation_between_dates(self, 
+                                           start_date:datetime, 
+                                           end_date:datetime) -> dict:
+        generation = {}
+        
+        delta = timedelta(days=1)
+
+        while start_date <= end_date:
+            
+            payload = {
+                'powerstation_id' : self.system_id,
+                'date' : start_date.strftime('%Y-%m-%d')
+            }
+            
+            count_request = 0
+            data = {}
+            
+            while(not data and count_request < self.__n_max_request_retry):
+            
+                count_request += 1
+                method = GetPowerStationPowerAndIncomeByDay
+                data = self.__login(method, payload)
+            
+                if not data:
+                    self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+
+            # Parsing data and extracting day.
+            for day in data:
+                if day['d'] == start_date.strftime('%m/%d/%Y'):
+                    generation[start_date.strftime('%Y-%m-%d')] = day['p']
+            
+            start_date += delta
+            count_request = 0
+            data = {}
+            
+        return generation

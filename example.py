@@ -35,7 +35,14 @@ def __get_power_generation_between_dates(goodweapi:GoodweApi) -> void:
         end_date=datetime.datetime(2023, 3, 2)
     )
     
-    print(json.dumps(data, indent = 4) )
+    print(json.dumps(data, indent = 4))
+    
+def __get_power_station_pac_by_day_for_app(goodweapi:GoodweApi) -> void:
+    
+    day = datetime.datetime(2022, 12, 1)
+    data = goodweapi.get_power_station_generated_every_five_minutes_per_day(date=day)
+    
+    print(json.dumps(data, indent = 4))
 
 def main():
 
@@ -60,6 +67,7 @@ def main():
 
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
+    # __get_power_station_pac_by_day_for_app(goodweapi)
     
 if __name__ == "__main__":
     

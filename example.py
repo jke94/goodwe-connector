@@ -56,12 +56,11 @@ def main():
         password=password,
         logging=True)
     
-    # TODO: Uncomment the function that you want use it!
-    
-    # __get_power_generation_per_day(goodweapi)
-    __get_power_generation_between_dates(goodweapi)
-    
+    print('Uncoment some function to run it! ;)')
 
+    # __get_power_generation_per_day(goodweapi)
+    # __get_power_generation_between_dates(goodweapi)
+    
 if __name__ == "__main__":
     
     main()

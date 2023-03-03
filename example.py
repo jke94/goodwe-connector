@@ -1,8 +1,11 @@
+from numpy import void
 from goodwe_connector.goodwe_api import GoodweApi
 import datetime
 import configparser
 import os.path
 import json
+
+json_credentials_config_file = 'goodwe_config.json'
 
 def read_json_config(confg_file_name) -> dict:
     
@@ -18,10 +21,26 @@ def read_json_config(confg_file_name) -> dict:
     
     return config
 
-def main(json_credentials_file):
+def __get_power_generation_per_day(goodweapi:GoodweApi) -> void:
+        
+    day = datetime.datetime(2023, 2, 14)
+    power_generated = goodweapi.get_power_generation_per_day(day)
+    
+    print(f'Day {day.strftime("%d/%m/%Y")}\tPower Generated: {power_generated} kW')
+
+def __get_power_generation_between_dates(goodweapi:GoodweApi) -> void:
+    
+    data = goodweapi.get_power_generation_between_dates(
+        start_date=datetime.datetime(2023, 1, 1),
+        end_date=datetime.datetime(2023, 3, 2)
+    )
+    
+    print(json.dumps(data, indent = 4) )
+
+def main():
 
     # Read secret credentials from JSON file.
-    config = read_json_config(json_credentials_file)
+    config = read_json_config(json_credentials_config_file)
     
     if(config is None): 
         return
@@ -36,14 +55,13 @@ def main(json_credentials_file):
         account=user,
         password=password,
         logging=True)
-
-    # Request data to the Goodwe Api.
-    day = datetime.datetime(2023, 2, 14)
-    power_generated = goodweapi.get_power_generation_per_day(day)
     
-    print(f'Day {day.strftime("%d/%m/%Y")}\tPower Generated: {power_generated} kW')
+    # TODO: Uncomment the function that you want use it!
+    
+    # __get_power_generation_per_day(goodweapi)
+    __get_power_generation_between_dates(goodweapi)
+    
 
 if __name__ == "__main__":
     
-    json_credentials_config_file = 'goodwe_config.json'
-    main(json_credentials_config_file)
+    main()

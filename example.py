@@ -35,7 +35,14 @@ def __get_power_generation_between_dates(goodweapi:GoodweApi) -> void:
         end_date=datetime.datetime(2023, 3, 2)
     )
     
-    print(json.dumps(data, indent = 4) )
+    print(json.dumps(data, indent = 4))
+    
+def __get_power_station_generated_every_five_minutes_per_day(goodweapi:GoodweApi) -> void:
+    
+    day = datetime.datetime(2022, 12, 1)
+    data = goodweapi.get_power_station_generated_every_five_minutes_per_day(date=day)
+    
+    print(json.dumps(data, indent = 4))
 
 def main():
 
@@ -56,10 +63,11 @@ def main():
         password=password,
         logging=True)
     
-    print('Uncoment some function to run it! ;)')
+    print('Uncomment some function to run it! ;)')
 
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
+    # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     
 if __name__ == "__main__":
     

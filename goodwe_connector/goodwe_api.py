@@ -1,7 +1,9 @@
 import datetime
+from datetime import datetime
 from datetime import timedelta
 from goodwe_connector.goodwe_constants import GOODWE_API_URL
 from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
+from goodwe_connector.goodwe_api_methods import GetPowerStationPacByDayForApp
 from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
 from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
 from requests.exceptions import RequestException
@@ -172,3 +174,46 @@ class GoodweApi:
             data = {}
             
         return generation
+    
+    def get_power_station_generated_every_five_minutes_per_day(self, date:datetime) -> dict:
+        
+        day_powers = {} 
+        
+        day = date.strftime('%Y-%m-%d')
+        
+        payload = {
+            'id' : self.system_id,
+            'date' : day
+        }
+        
+        count_request = 0
+        data = {}
+        
+        while(not data and count_request < self.__n_max_request_retry):
+        
+            count_request += 1
+            method = GetPowerStationPacByDayForApp
+            data = self.__login(method, payload)
+        
+            if not data:
+                self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+                
+        if (not data or "pacs" not in data or not data['pacs']):
+            
+            day_powers['NO_DATA'] = 0.0 
+            
+            return day_powers
+        
+        for item in data['pacs']:
+                      
+            aux_date = date.strptime(item['date'], '%m/%d/%Y %H:%M:%S')
+            key_day = aux_date.strftime('%Y-%m-%d %H:%M:%S')
+            
+            day_powers[key_day] = item['pac']          
+
+        # Write to JSON file.
+                
+        # with open(f'data_{day}.json', 'w') as file:
+        #     json.dump(day_powers, file, indent=4)
+        
+        return day_powers

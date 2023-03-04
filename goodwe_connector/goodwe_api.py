@@ -210,8 +210,10 @@ class GoodweApi:
             key_day = aux_date.strftime('%Y-%m-%d %H:%M:%S')
             
             day_powers[key_day] = item['pac']          
-        
-        with open(f'data_{day}.json', 'w') as file:
-            json.dump(day_powers, file, indent=4)
+
+        # Write to JSON file.
+                
+        # with open(f'data_{day}.json', 'w') as file:
+        #     json.dump(day_powers, file, indent=4)
         
         return day_powers

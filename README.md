@@ -1,3 +1,5 @@
+[![Documentation generation](https://github.com/jke94/goodwe-connector/actions/workflows/documentation-generation.yml/badge.svg)](https://github.com/jke94/goodwe-connector/actions/workflows/documentation-generation.yml)
+
 # goodwe-connector
 ![image](https://user-images.githubusercontent.com/53972851/221367514-63997c8c-b491-467b-996b-0407ff98ffba.png)
 

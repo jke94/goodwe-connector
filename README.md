@@ -12,7 +12,7 @@ A python library to connect with Goodwe API Rest and get production data of sola
 ```
 python -m venv .\venv
 ```
-2. Install requeriments.txt.
+2. Install requirements.txt.
 
 ```
  pip install -r requirements.txt

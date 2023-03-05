@@ -1,8 +1,8 @@
-name: ci 
+name: Documentation generation
 on:
   push:
     branches:
-      # - main
+      - main
 permissions:
   contents: write
 jobs:

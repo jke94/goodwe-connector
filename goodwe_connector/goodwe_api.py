@@ -39,25 +39,25 @@ class GoodweApi:
         self.account = account
         self.password = password
         self.base_url = self.__global_url
-        self.__token = ''
+        self.__credentials = ''
         self.__n_max_request_retry = 5
         
         self.__logger = GoodweApiLogger(isLogging=logging)
 
-    def __login(self, url, payload) -> dict:
+    def __authorization(self) -> bool:
         
         try:
-
+            
             loginPayload = {
                 'account': self.account,
                 'pwd': self.password,
             }
-
+            
             authrequest = requests.post(
-                self.__global_url + v2CommonCrossLogin, 
-                headers=self.__headers, 
-                data=loginPayload, 
-                timeout=10)
+            self.__global_url + v2CommonCrossLogin, 
+            headers=self.__headers, 
+            data=loginPayload, 
+            timeout=10)
             
             authrequest.raise_for_status()
             
@@ -71,16 +71,29 @@ class GoodweApi:
 
             if('api' not in data):
                 self.__logger.warning(f' key: api, does not in {data}')
-                return None
+                return False
             
             self.base_url = data['api']
-            self.__token = json.dumps(data['data'])
+            self.__credentials = json.dumps(data['data'])
+            
+            return True
+        
+        except RequestException as e:
+            self.__logger.warning(f'{e}')
+            return False
 
+    def __call(self, url, payload) -> dict:
+        
+        try:
+            
+            if not self.__authorization():
+                return None
+            
             headers = {
                 'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-                'Token': self.__token,
+                'Token': self.__credentials,
             }
-
+            
             request = requests.post(
                 self.base_url + url, 
                 headers=headers, 
@@ -126,7 +139,7 @@ class GoodweApi:
         
             count_request += 1
             method = GetPowerStationPowerAndIncomeByDay
-            data = self.__login(method, payload)
+            data = self.__call(method, payload)
         
             if not data:
                 self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
@@ -159,7 +172,7 @@ class GoodweApi:
             
                 count_request += 1
                 method = GetPowerStationPowerAndIncomeByDay
-                data = self.__login(method, payload)
+                data = self.__call(method, payload)
             
                 if not data:
                     self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
@@ -193,7 +206,7 @@ class GoodweApi:
         
             count_request += 1
             method = GetPowerStationPacByDayForApp
-            data = self.__login(method, payload)
+            data = self.__call(method, payload)
         
             if not data:
                 self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')

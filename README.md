@@ -3,9 +3,22 @@
 
 A python library to connect with Goodwe API Rest and get production data of solar panels.
 
-## A. How to use.
+## A. How to use...
 
-### A.1. Create JSON file 'goodwe_config.json' like this, with the following fields:
+### A.1. Developer environment: Create virtual environment and install requirements.txt
+
+1. Create virtual envinroment:
+
+```
+python -m venv .\venv
+```
+2. Install requeriments.txt.
+
+```
+ pip install -r requirements.txt
+```
+
+### A.2. Create JSON file 'goodwe_config.json' like this (base repository path), with the following fields:
 
 - System Id
 - Account
@@ -22,7 +35,7 @@ Example of goodwe_config.json
     }
 }
 ```
-### A.2. Open example.py and edit to call the goodew_connector package functions:
+### A.3. Open example.py and edit to call the goodew_connector package functions:
 
 Run the example.py with python:
 

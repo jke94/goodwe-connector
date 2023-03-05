@@ -1,17 +1,13 @@
-import datetime
 from datetime import datetime
 from datetime import timedelta
-from goodwe_connector.goodwe_constants import GOODWE_API_URL
+from json import JSONDecodeError
+from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
 from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_methods import GetPowerStationPacByDayForApp
-from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
-from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
-from requests.exceptions import RequestException
-from json import JSONDecodeError
-import json
 import requests
+from requests.exceptions import RequestException
 
-class GoodweApi:
+class GoodweApi(GoodweApiAuth):
     """_summary_
     """
 
@@ -20,78 +16,21 @@ class GoodweApi:
                  account:str, 
                  password:str, 
                  logging=False) -> None:
-        """_summary_
-
-        Args:
-            system_id (str): _description_
-            account (str): _description_
-            password (str): _description_
-            logging (bool, optional): _description_. Defaults to False.
-        """
         
-        self.__headers = {
-            'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-            'Token': '{"version":"v3.1","client":"ios","language":"en"}',
-        }
-        
-        self.__global_url = GOODWE_API_URL
-        self.system_id = system_id
-        self.account = account
-        self.password = password
-        self.base_url = self.__global_url
-        self.__credentials = ''
         self.__n_max_request_retry = 5
         
-        self.__logger = GoodweApiLogger(isLogging=logging)
-
-    def __authorization(self) -> bool:
-        
-        try:
-            
-            loginPayload = {
-                'account': self.account,
-                'pwd': self.password,
-            }
-            
-            authrequest = requests.post(
-            self.__global_url + v2CommonCrossLogin, 
-            headers=self.__headers, 
-            data=loginPayload, 
-            timeout=10)
-            
-            authrequest.raise_for_status()
-            
-            self.__logger.info(f'Login request elapsed seconds: {authrequest.elapsed}')
-            
-            data = authrequest.json()
-            authrequest.close()
-
-            # Print login json result.
-            # print(json.dumps(data, indent=4))
-
-            if('api' not in data):
-                self.__logger.warning(f' key: api, does not in {data}')
-                return False
-            
-            self.base_url = data['api']
-            self.__credentials = json.dumps(data['data'])
-            
-            return True
-        
-        except RequestException as e:
-            self.__logger.warning(f'{e}')
-            return False
+        super().__init__(system_id, account, password,logging)
 
     def __call(self, url, payload) -> dict:
         
         try:
             
-            if not self.__authorization():
+            if not self._authorization():
                 return None
             
             headers = {
                 'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-                'Token': self.__credentials,
+                'Token': self._credentials,
             }
             
             request = requests.post(
@@ -102,7 +41,7 @@ class GoodweApi:
             
             request.raise_for_status()
             
-            self.__logger.info(f'Method request elapsed seconds: {request.elapsed}')
+            self._logger.info(f'Method request elapsed seconds: {request.elapsed}')
             
             data = request.json()
             request.close()
@@ -110,11 +49,11 @@ class GoodweApi:
             return data['data']
         
         except JSONDecodeError as json_decoder_error:
-            self.__logger.warning(f'{json_decoder_error}')
+            self._logger.warning(f'{json_decoder_error}')
             return None
 
         except RequestException as e:
-            self.__logger.warning(f'{e}')
+            self._logger.warning(f'{e}')
             return None
 
     def get_power_generation_per_day(self, date:datetime) -> float:
@@ -142,7 +81,7 @@ class GoodweApi:
             data = self.__call(method, payload)
         
             if not data:
-                self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
         # Parsing data to extract the correct day.
         for day in data:
@@ -175,7 +114,7 @@ class GoodweApi:
                 data = self.__call(method, payload)
             
                 if not data:
-                    self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+                    self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
             # Parsing data and extracting day.
             for day in data:
@@ -209,7 +148,7 @@ class GoodweApi:
             data = self.__call(method, payload)
         
             if not data:
-                self.__logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
                 
         if (not data or "pacs" not in data or not data['pacs']):
             

@@ -1,4 +1,3 @@
-from numpy import void
 from goodwe_connector.goodwe_api import GoodweApi
 import datetime
 import configparser
@@ -21,14 +20,15 @@ def read_json_config(confg_file_name) -> dict:
     
     return config
 
-def __get_power_generation_per_day(goodweapi:GoodweApi) -> void:
+def __get_power_generation_per_day(goodweapi:GoodweApi) -> None:
         
-    day = datetime.datetime(2023, 2, 14)
-    power_generated = goodweapi.get_power_generation_per_day(day)
+    day = datetime.datetime(2023, 3, 2)
+    data = goodweapi.get_power_generation_per_day(day)
     
-    print(f'Day {day.strftime("%d/%m/%Y")}\tPower Generated: {power_generated} kW')
+    print("Day and kW of power generated: ")
+    print(json.dumps(data, indent = 4))
 
-def __get_power_generation_between_dates(goodweapi:GoodweApi) -> void:
+def __get_power_generation_between_dates(goodweapi:GoodweApi) -> None:
     
     data = goodweapi.get_power_generation_between_dates(
         start_date=datetime.datetime(2023, 1, 1),
@@ -37,9 +37,9 @@ def __get_power_generation_between_dates(goodweapi:GoodweApi) -> void:
     
     print(json.dumps(data, indent = 4))
     
-def __get_power_station_generated_every_five_minutes_per_day(goodweapi:GoodweApi) -> void:
+def __get_power_station_generated_every_five_minutes_per_day(goodweapi:GoodweApi) -> None:
     
-    day = datetime.datetime(2022, 12, 1)
+    day = datetime.datetime(2022, 5, 23)
     data = goodweapi.get_power_station_generated_every_five_minutes_per_day(date=day)
     
     print(json.dumps(data, indent = 4))

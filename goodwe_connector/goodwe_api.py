@@ -56,7 +56,7 @@ class GoodweApi(GoodweApiAuth):
             self._logger.warning(f'{e}')
             return None
 
-    def get_power_generation_per_day(self, date:datetime) -> float:
+    def get_power_generation_per_day(self, date:datetime) -> dict:
         """_summary_
 
         Args:
@@ -71,6 +71,7 @@ class GoodweApi(GoodweApiAuth):
             'date' : date.strftime('%Y-%m-%d')
         }
         
+        generation = {}
         count_request = 0
         data = {}
         
@@ -86,9 +87,15 @@ class GoodweApi(GoodweApiAuth):
         # Parsing data to extract the correct day.
         for day in data:
             if day['d'] == date.strftime('%m/%d/%Y'):
-                return day['p']
+                
+                Key_date = date.strftime('%Y-%m-%d')
+                value = day['p']
+                
+                generation[Key_date] = value
+                
+                return generation
 
-        return -2
+        return generation
     
     def get_power_generation_between_dates(self, 
                                            start_date:datetime, 
@@ -152,7 +159,7 @@ class GoodweApi(GoodweApiAuth):
                 
         if (not data or "pacs" not in data or not data['pacs']):
             
-            day_powers['NO_DATA'] = 0.0 
+            day_powers['NO_DATA'] = 0
             
             return day_powers
         
@@ -161,11 +168,6 @@ class GoodweApi(GoodweApiAuth):
             aux_date = date.strptime(item['date'], '%m/%d/%Y %H:%M:%S')
             key_day = aux_date.strftime('%Y-%m-%d %H:%M:%S')
             
-            day_powers[key_day] = item['pac']          
-
-        # Write to JSON file.
-                
-        # with open(f'data_{day}.json', 'w') as file:
-        #     json.dump(day_powers, file, indent=4)
+            day_powers[key_day] = int(item['pac'])
         
         return day_powers

@@ -2,8 +2,21 @@ from datetime import datetime
 from datetime import timedelta
 from json import JSONDecodeError
 from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
-from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
-from goodwe_connector.goodwe_api_methods import GetPowerStationPacByDayForApp
+from goodwe_connector.goodwe_api_controller.v2.power_station import GetPowerStationPowerAndIncomeByDay
+from goodwe_connector.goodwe_api_controller.v0.power_station_monitor import GetPowerStationPacByDayForApp
+from goodwe_connector.goodwe_api_methods import GetPowerStationMonitorDetail
+from goodwe_connector.goodwe_api_methods import GetGetPowerStationStatus
+from goodwe_connector.goodwe_api_methods import GetStatPowerStationKPI
+from goodwe_connector.goodwe_api_methods import GetQueryPowerStationMonitor
+from goodwe_connector.goodwe_api_methods import PowerStation_GetPowerStationTips
+from goodwe_connector.goodwe_api_methods import PowerStationGetUserInfoByPowerStation
+from goodwe_connector.goodwe_api_methods import StatGetPowerStationAndPowerTotal
+from goodwe_connector.goodwe_api_methods import HistoryDataQueryPowerStationByHistory
+from goodwe_connector.goodwe_api_methods import HistoryDataQueryPowerStationByHistoryForDaily
+from goodwe_connector.goodwe_api_methods import PowerStationV1GetPowerCharts
+from goodwe_connector.goodwe_api_methods import PowerStationV1GetEnergeStatisticsCharts
+from goodwe_connector.goodwe_api_methods import ReportDataV1GetPowerStationPowerReportDetialByMonth
+
 import requests
 from requests.exceptions import RequestException
 
@@ -46,6 +59,8 @@ class GoodweApi(GoodweApiAuth):
             data = request.json()
             request.close()
 
+            print(data)
+            
             return data['data']
         
         except JSONDecodeError as json_decoder_error:
@@ -171,3 +186,35 @@ class GoodweApi(GoodweApiAuth):
             day_powers[key_day] = int(item['pac'])
         
         return day_powers
+    
+    def get_power_station_monitor_detail(self) -> dict:
+        # PowerStationMonitorController_GetPowerStationMonitorDetail_0
+        data_returned = {} 
+        
+        payload = {
+            # 'powerStationId' : self.system_id,
+            "date": "2023-03-10",
+            "is_report": 2,
+            "page_index": 1,
+            "page_size": 5
+        }
+        
+        count_request = 0
+        data = {}
+        
+        while(not data and count_request < self.__n_max_request_retry):
+        
+            count_request += 1
+            method = ReportDataV1GetPowerStationPowerReportDetialByMonth
+            data = self.__call(method, payload)
+        
+            if not data:
+                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+        
+        if (not data):
+            
+            data_returned['NO_DATA'] = 0
+            
+            return data_returned
+        
+        return data

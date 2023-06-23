@@ -3,6 +3,7 @@ import datetime
 import configparser
 import os.path
 import json
+import time
 
 json_credentials_config_file = 'goodwe_config.json'
 
@@ -31,8 +32,8 @@ def __get_power_generation_per_day(goodweapi:GoodweApi) -> None:
 def __get_power_generation_between_dates(goodweapi:GoodweApi) -> None:
     
     data = goodweapi.get_power_generation_between_dates(
-        start_date=datetime.datetime(2023, 3, 1),
-        end_date=datetime.datetime(2023, 3, 10)
+        start_date=datetime.datetime(2023, 6, 1),
+        end_date=datetime.datetime(2023, 6, 23)
     )
     
     print(json.dumps(data, indent = 4))
@@ -44,11 +45,11 @@ def __get_power_station_generated_every_five_minutes_per_day(goodweapi:GoodweApi
     
     print(json.dumps(data, indent = 4))
 
-def __get_power_station_monitor_detail(goodweapi:GoodweApi) -> None:
+def __get_power_station_monitor_detail(goodweapi:GoodweApi, year:int, month:int) -> None:
     
-    data = goodweapi.get_power_station_monitor_detail()
+    data = goodweapi.get_power_station_monitor_detail(year=year, month=month)
     
-    print(json.dumps(data, indent = 4))
+    print(json.dumps(data, indent = 4, ensure_ascii=False))
 
 def main():
 
@@ -74,8 +75,12 @@ def main():
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
-    __get_power_station_monitor_detail(goodweapi)
+    __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     
 if __name__ == "__main__":
     
+    start_time = time.time()
+    
     main()
+    
+    print("--- %s seconds ---" % (time.time() - start_time))

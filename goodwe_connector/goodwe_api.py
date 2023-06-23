@@ -58,8 +58,6 @@ class GoodweApi(GoodweApiAuth):
             
             data = request.json()
             request.close()
-
-            print(data)
             
             return data['data']
         
@@ -187,13 +185,22 @@ class GoodweApi(GoodweApiAuth):
         
         return day_powers
     
-    def get_power_station_monitor_detail(self) -> dict:
-        # PowerStationMonitorController_GetPowerStationMonitorDetail_0
+    def get_power_station_monitor_detail(self, year:int, month:int) -> dict:
+        
         data_returned = {} 
         
+        if year < 0 or month < 1 or month > 12:
+            print(f'Error! Month: {month}. Year: {year}')
+            return data_returned
+                
+        print(f'Month : {month} | Year: {year}')
+        
+        date = datetime(year=year, month=month, day=1)
+        date_str = date.strftime("%Y-%m-%d")
+        
         payload = {
-            # 'powerStationId' : self.system_id,
-            "date": "2023-03-10",
+            # "date": "2023-04-1",
+            'date' : date_str,
             "is_report": 2,
             "page_index": 1,
             "page_size": 5
@@ -217,4 +224,20 @@ class GoodweApi(GoodweApiAuth):
             
             return data_returned
         
-        return data
+        power_stations_info = []
+        
+        # print(json.dumps(data, indent=2))
+        
+        for item in data['list']:
+            power_stations_info.append({
+                'PowerStationId': item['pw_id'],
+                'PowerStationOwnerId': item['owner_id'],
+                'PowerStationInformation' :  item['pw_name'],
+                'PowerStationAddress' :  item['address'],
+                'PowerStationKwCapacity' :  item['capacity'],
+                'PowerStationMonthPower' :  item['month_power'],
+                'PowerStationTotalPower' :  item['total_power'],
+                'ContactEmail' :  item['email'],
+            })
+        
+        return power_stations_info

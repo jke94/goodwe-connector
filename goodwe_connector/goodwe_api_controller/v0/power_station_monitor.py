@@ -1,0 +1,1 @@
+GetPowerStationPacByDayForApp = "PowerStationMonitor/GetPowerStationPacByDayForApp"

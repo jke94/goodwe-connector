@@ -1,0 +1,1 @@
+GetPowerStationPowerAndIncomeByDay = "v2/PowerStationMonitor/GetPowerStationPowerAndIncomeByDay"

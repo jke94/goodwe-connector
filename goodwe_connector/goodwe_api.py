@@ -2,8 +2,10 @@ from datetime import datetime
 from datetime import timedelta
 from json import JSONDecodeError
 from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
-from goodwe_connector.goodwe_api_methods import GetPowerStationPowerAndIncomeByDay
-from goodwe_connector.goodwe_api_methods import GetPowerStationPacByDayForApp
+from goodwe_connector.goodwe_api_controller.v2.power_station import GetPowerStationPowerAndIncomeByDay
+from goodwe_connector.goodwe_api_controller.v0.power_station_monitor import GetPowerStationPacByDayForApp
+from goodwe_connector.goodwe_api_methods import ReportDataV1GetPowerStationPowerReportDetialByMonth
+
 import requests
 from requests.exceptions import RequestException
 
@@ -45,7 +47,7 @@ class GoodweApi(GoodweApiAuth):
             
             data = request.json()
             request.close()
-
+            
             return data['data']
         
         except JSONDecodeError as json_decoder_error:
@@ -131,7 +133,12 @@ class GoodweApi(GoodweApiAuth):
             start_date += delta
             count_request = 0
             data = {}
-            
+        
+        average = sum(generation.values())/len(generation.keys())
+        average_str = '{:.2f}'.format(average)
+        
+        print(f'Generated {sum(generation.values())} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
+        
         return generation
     
     def get_power_station_generated_every_five_minutes_per_day(self, date:datetime) -> dict:
@@ -171,3 +178,60 @@ class GoodweApi(GoodweApiAuth):
             day_powers[key_day] = int(item['pac'])
         
         return day_powers
+    
+    def get_power_station_monitor_detail(self, year:int, month:int) -> dict:
+        
+        data_returned = {} 
+        
+        if year < 0 or month < 1 or month > 12:
+            print(f'Error! Month: {month}. Year: {year}')
+            return data_returned
+                
+        print(f'Month : {month} | Year: {year}')
+        
+        date = datetime(year=year, month=month, day=1)
+        date_str = date.strftime("%Y-%m-%d")
+        
+        payload = {
+            # "date": "2023-04-1",
+            'date' : date_str,
+            "is_report": 2,
+            "page_index": 1,
+            "page_size": 5
+        }
+        
+        count_request = 0
+        data = {}
+        
+        while(not data and count_request < self.__n_max_request_retry):
+        
+            count_request += 1
+            method = ReportDataV1GetPowerStationPowerReportDetialByMonth
+            data = self.__call(method, payload)
+        
+            if not data:
+                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+        
+        if (not data):
+            
+            data_returned['NO_DATA'] = 0
+            
+            return data_returned
+        
+        power_stations_info = []
+        
+        # print(json.dumps(data, indent=2))
+        
+        for item in data['list']:
+            power_stations_info.append({
+                'PowerStationId': item['pw_id'],
+                'PowerStationOwnerId': item['owner_id'],
+                'PowerStationInformation' :  item['pw_name'],
+                'PowerStationAddress' :  item['address'],
+                'PowerStationKwCapacity' :  item['capacity'],
+                'PowerStationMonthPower' :  item['month_power'],
+                'PowerStationTotalPower' :  item['total_power'],
+                'ContactEmail' :  item['email'],
+            })
+        
+        return power_stations_info

@@ -5,6 +5,7 @@ class GoodweApiLogger:
     def __init__(self, isLogging) -> None:
         
         logging.basicConfig(
+            format='%(asctime)s %(levelname)-8s %(message)s',
             filename='goodwe-connector.log', 
             encoding='utf-8', 
             level=logging.DEBUG)

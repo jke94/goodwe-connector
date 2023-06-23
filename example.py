@@ -23,7 +23,7 @@ def read_json_config(confg_file_name) -> dict:
 
 def __get_power_generation_per_day(goodweapi:GoodweApi) -> None:
         
-    day = datetime.datetime(2023, 3, 2)
+    day = datetime.datetime(2023, 6, 22)
     data = goodweapi.get_power_generation_per_day(day)
     
     print("Day and kW of power generated: ")
@@ -53,6 +53,8 @@ def __get_power_station_monitor_detail(goodweapi:GoodweApi, year:int, month:int)
 
 def main():
 
+    start_time = time.time()
+
     # Read secret credentials from JSON file.
     config = read_json_config(json_credentials_config_file)
     
@@ -75,12 +77,10 @@ def main():
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
-    __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
+    # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
+    
+    print("--- %s seconds ---" % (time.time() - start_time))
     
 if __name__ == "__main__":
     
-    start_time = time.time()
-    
     main()
-    
-    print("--- %s seconds ---" % (time.time() - start_time))

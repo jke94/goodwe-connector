@@ -133,7 +133,12 @@ class GoodweApi(GoodweApiAuth):
             start_date += delta
             count_request = 0
             data = {}
-            
+        
+        average = sum(generation.values())/len(generation.keys())
+        average_str = '{:.2f}'.format(average)
+        
+        print(f'Generated {sum(generation.values())} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
+        
         return generation
     
     def get_power_station_generated_every_five_minutes_per_day(self, date:datetime) -> dict:

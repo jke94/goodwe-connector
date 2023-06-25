@@ -75,7 +75,7 @@ def main():
     print('Uncomment some function to run it! ;)')
 
     # __get_power_generation_per_day(goodweapi)
-    __get_power_generation_between_dates(goodweapi)
+    # __get_power_generation_between_dates(goodweapi)
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     

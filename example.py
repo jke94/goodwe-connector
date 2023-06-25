@@ -33,7 +33,7 @@ def __get_power_generation_between_dates(goodweapi:GoodweApi) -> None:
     
     data = goodweapi.get_power_generation_between_dates(
         start_date=datetime.datetime(2023, 6, 1),
-        end_date=datetime.datetime(2023, 6, 23)
+        end_date=datetime.datetime(2023, 6, 30)
     )
     
     print(json.dumps(data, indent = 4))

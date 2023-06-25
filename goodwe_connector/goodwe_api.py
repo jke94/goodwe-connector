@@ -136,8 +136,9 @@ class GoodweApi(GoodweApiAuth):
         
         average = sum(generation.values())/len(generation.keys())
         average_str = '{:.2f}'.format(average)
+        total_power_generated = '{:.2f}'.format(sum(generation.values()))
         
-        print(f'Generated {sum(generation.values())} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
+        print(f'Generated {total_power_generated} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
         
         return generation
     

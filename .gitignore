@@ -512,3 +512,6 @@ cython_debug/
 
 # Configuration file secrets
 goodwe_config.json
+
+# Data
+*.csv

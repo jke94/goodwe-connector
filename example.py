@@ -88,11 +88,11 @@ def main():
 
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
-    __get_power_generation_between_dates_to_csv(
-        goodweapi, 
-        start_date=datetime.datetime(2023, 1, 1),
-        end_date=datetime.datetime(2023, 7, 24),
-        file_path_name='./production_by_day.csv')
+    # __get_power_generation_between_dates_to_csv(
+    #     goodweapi, 
+    #     start_date=datetime.datetime(2023, 7, 1),
+    #     end_date=datetime.datetime(2023, 7, 24),
+    #     file_path_name='./production_by_day.csv')
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     

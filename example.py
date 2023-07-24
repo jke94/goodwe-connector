@@ -33,10 +33,22 @@ def __get_power_generation_between_dates(goodweapi:GoodweApi) -> None:
     
     data = goodweapi.get_power_generation_between_dates(
         start_date=datetime.datetime(2023, 6, 1),
-        end_date=datetime.datetime(2023, 6, 30)
+        end_date=datetime.datetime(2023, 7, 14)
     )
     
     print(json.dumps(data, indent = 4))
+    
+def __get_power_generation_between_dates_to_csv(
+    goodweapi:GoodweApi,
+    start_date:datetime,
+    end_date:datetime,
+    file_path_name:str) -> None:
+    
+    data = goodweapi.get_power_generation_between_dates_to_csv(
+        start_date=start_date,
+        end_date=end_date,
+        file_name=file_path_name
+    )
     
 def __get_power_station_generated_every_five_minutes_per_day(goodweapi:GoodweApi) -> None:
     
@@ -76,6 +88,11 @@ def main():
 
     # __get_power_generation_per_day(goodweapi)
     # __get_power_generation_between_dates(goodweapi)
+    # __get_power_generation_between_dates_to_csv(
+    #     goodweapi, 
+    #     start_date=datetime.datetime(2023, 7, 1),
+    #     end_date=datetime.datetime(2023, 7, 24),
+    #     file_path_name='./production_by_day.csv')
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     

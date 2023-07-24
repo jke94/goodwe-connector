@@ -5,7 +5,7 @@ from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
 from goodwe_connector.goodwe_api_controller.v2.power_station import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_controller.v0.power_station_monitor import GetPowerStationPacByDayForApp
 from goodwe_connector.goodwe_api_methods import ReportDataV1GetPowerStationPowerReportDetialByMonth
-
+import pandas as pd
 import requests
 from requests.exceptions import RequestException
 
@@ -98,6 +98,54 @@ class GoodweApi(GoodweApiAuth):
                 return generation
 
         return generation
+    
+    def get_power_generation_between_dates_to_csv(self, 
+                                           start_date:datetime, 
+                                           end_date:datetime,
+                                           file_name:str,
+                                           show_info:bool = True) -> None:
+        generation = {}
+        
+        delta = timedelta(days=1)
+
+        while start_date <= end_date:
+            
+            payload = {
+                'powerstation_id' : self.system_id,
+                'date' : start_date.strftime('%Y-%m-%d')
+            }
+            
+            count_request = 0
+            data = {}
+            
+            while(not data and count_request < self.__n_max_request_retry):
+            
+                count_request += 1
+                method = GetPowerStationPowerAndIncomeByDay
+                data = self.__call(method, payload)
+            
+                if not data:
+                    self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+
+            # Parsing data and extracting day.
+            for day in data:
+                if day['d'] == start_date.strftime('%m/%d/%Y'):
+                    generation[start_date.strftime('%Y-%m-%d')] = day['p']
+            
+            start_date += delta
+            count_request = 0
+            data = {}
+        
+        dataframe = pd.DataFrame(generation.items(), columns=['Date', 'ProductionkWh'])
+        
+        dataframe.to_csv(file_name, index=False)
+        
+        if show_info:
+            average = sum(generation.values())/len(generation.keys())
+            average_str = '{:.2f}'.format(average)
+            total_power_generated = '{:.2f}'.format(sum(generation.values()))
+            
+            print(f'Generated {total_power_generated} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
     
     def get_power_generation_between_dates(self, 
                                            start_date:datetime, 

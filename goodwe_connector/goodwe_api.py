@@ -138,7 +138,7 @@ class GoodweApi(GoodweApiAuth):
         
         dataframe = pd.DataFrame(generation.items(), columns=['Date', 'ProductionkWh'])
         
-        dataframe.to_csv(file_name, index=False)
+        dataframe.to_csv(file_name, index=False, sep=";", decimal=",")
         
         if show_info:
             average = sum(generation.values())/len(generation.keys())

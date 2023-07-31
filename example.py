@@ -23,7 +23,7 @@ def read_json_config(confg_file_name) -> dict:
 
 def __get_power_generation_per_day(goodweapi:GoodweApi) -> None:
         
-    day = datetime.datetime(2023, 6, 22)
+    day = datetime.datetime(2023, 7, 30)
     data = goodweapi.get_power_generation_per_day(day)
     
     print("Day and kW of power generated: ")
@@ -86,12 +86,12 @@ def main():
     
     print('Uncomment some function to run it! ;)')
 
-    # __get_power_generation_per_day(goodweapi)
-    # __get_power_generation_between_dates(goodweapi)
+    __get_power_generation_per_day(goodweapi)
+    __get_power_generation_between_dates(goodweapi)
     # __get_power_generation_between_dates_to_csv(
     #     goodweapi, 
-    #     start_date=datetime.datetime(2023, 7, 1),
-    #     end_date=datetime.datetime(2023, 7, 24),
+    #     start_date=datetime.datetime(2023, 7, 20),
+    #     end_date=datetime.datetime(2023, 7, 31),
     #     file_path_name='./production_by_day.csv')
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)

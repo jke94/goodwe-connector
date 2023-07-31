@@ -6,6 +6,7 @@ import json
 import time
 
 from goodwe_connector.strategies.power_generation_per_day import PowerGenerationPerDay
+from goodwe_connector.strategies.power_generation_between_dates import PowerGenerationBetweenDays
 from goodwe_connector.goodwe_context import GoodweContext
 JSON_CREDENTIALS_CONFIG_FILE = 'goodwe_config.json'
 
@@ -51,7 +52,14 @@ def main():
         strategy=PowerGenerationPerDay(date=datetime.datetime(2023, 7, 20)))
     
     data = context.do_some_business_logic()
+    print(json.dumps(data, indent = 4))
     
+    context.strategy = PowerGenerationBetweenDays(
+        start_date=datetime.datetime(2023, 7, 21),
+        end_date=datetime.datetime(2023, 7, 22)
+    )
+    
+    data = context.do_some_business_logic()
     print(json.dumps(data, indent = 4))
 
     # __get_power_generation_per_day(goodweapi)

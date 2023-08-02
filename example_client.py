@@ -7,6 +7,7 @@ import time
 
 from goodwe_connector.strategies.power_generation_per_day import PowerGenerationPerDay
 from goodwe_connector.strategies.power_generation_between_dates import PowerGenerationBetweenDays
+from goodwe_connector.strategies.power_generation_between_dates_to_csv import PowerGenerationBetweenDaysToCsv
 from goodwe_connector.goodwe_context import GoodweContext
 JSON_CREDENTIALS_CONFIG_FILE = 'goodwe_config.json'
 
@@ -44,31 +45,37 @@ def main():
         account=user,
         password=password,
         logging=True)
-    
-    print('Uncomment some function to run it! ;)')
 
+    # 1: Get power generation a specific day.
+    
     context = GoodweContext(
         goodwe_api=goodweapi,
-        strategy=PowerGenerationPerDay(date=datetime.datetime(2023, 7, 20)))
+        strategy=PowerGenerationPerDay(date=datetime.datetime(2023, 8, 2)))
     
     data = context.do_some_business_logic()
     print(json.dumps(data, indent = 4))
     
+    # 2: Get power generation between range of days.
+    
     context.strategy = PowerGenerationBetweenDays(
-        start_date=datetime.datetime(2023, 7, 21),
-        end_date=datetime.datetime(2023, 7, 22)
+        start_date=datetime.datetime(2023, 8, 1),
+        end_date=datetime.datetime(2023, 8, 2)
     )
     
     data = context.do_some_business_logic()
     print(json.dumps(data, indent = 4))
 
-    # __get_power_generation_per_day(goodweapi)
-    # __get_power_generation_between_dates(goodweapi)
-    # __get_power_generation_between_dates_to_csv(
-    #     goodweapi, 
-    #     start_date=datetime.datetime(2023, 7, 20),
-    #     end_date=datetime.datetime(2023, 7, 31),
-    #     file_path_name='./production_by_day.csv')
+    # 3: Get power generation between range of days and save in CSV file.
+
+    context.strategy = PowerGenerationBetweenDaysToCsv(
+        start_date=datetime.datetime(2023, 8, 1),
+        end_date=datetime.datetime(2023, 8, 2),
+        file_name='./simple_test.csv',
+        show_info=True
+    )
+
+    data = context.do_some_business_logic()
+
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     

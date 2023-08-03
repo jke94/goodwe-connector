@@ -5,3 +5,4 @@ GOODWE_API_HEADER = {
     'Token': '{"version":"v3.1","client":"ios","language":"en"}'
     }
 
+JSON_CREDENTIALS_CONFIG_FILE = 'goodwe_config.json'

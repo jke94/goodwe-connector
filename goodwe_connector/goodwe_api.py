@@ -57,7 +57,8 @@ class GoodweApi(GoodweApiAuth):
         except RequestException as e:
             self._logger.warning(f'{e}')
             return None
-
+        
+    # TODO: Pending to move this logic to power_generation_per_day.py
     def get_power_generation_per_day(self, date:datetime) -> dict:
         """_summary_
 
@@ -99,6 +100,7 @@ class GoodweApi(GoodweApiAuth):
 
         return generation
     
+    # TODO: Pending to move this logic to power_generation_between_dates_to_csv.py
     def get_power_generation_between_dates_to_csv(self, 
                                            start_date:datetime, 
                                            end_date:datetime,
@@ -147,6 +149,7 @@ class GoodweApi(GoodweApiAuth):
             
             print(f'Generated {total_power_generated} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
     
+    # TODO: Pending to move this logic to power_generation_between_dates.py
     def get_power_generation_between_dates(self, 
                                            start_date:datetime, 
                                            end_date:datetime) -> dict:

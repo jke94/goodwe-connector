@@ -10,6 +10,7 @@ from goodwe_connector.goodwe_api import GoodweApi
 from goodwe_connector.strategies.power_generation_per_day import PowerGenerationPerDay
 from goodwe_connector.strategies.power_generation_between_dates import PowerGenerationBetweenDays
 from goodwe_connector.strategies.power_generation_between_dates_to_csv import PowerGenerationBetweenDaysToCsv
+from goodwe_connector.strategies.power_station_monitor_detail import PowerStationMonitorDetail
 
 def read_json_config(confg_file_name) -> dict:
     
@@ -75,9 +76,18 @@ def main():
     )
 
     data = context.process()
+    
+    # 4: Get power generation between range of days and save in CSV file.
+
+    context.strategy = PowerStationMonitorDetail(
+        year=2023,
+        month=5
+    )
+
+    data = context.process()
+    print(json.dumps(data, indent = 4))
 
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
-    # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)
     
     print("--- %s seconds ---" % (time.time() - start_time))
 

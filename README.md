@@ -35,7 +35,7 @@ Example of goodwe_config.json
     }
 }
 ```
-### A.3. Open example.py and edit to call the goodew_connector package functions:
+### A.3. Open sample.py and edit to call the goodew_connector package functions:
 
 Run the sample.py with python:
 

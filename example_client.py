@@ -1,15 +1,15 @@
-from goodwe_connector.goodwe_api import GoodweApi
 import datetime
 import configparser
 import os.path
 import json
 import time
 
+from goodwe_connector.goodwe_constants import JSON_CREDENTIALS_CONFIG_FILE
+from goodwe_connector.goodwe_context import GoodweContext
+from goodwe_connector.goodwe_api import GoodweApi
 from goodwe_connector.strategies.power_generation_per_day import PowerGenerationPerDay
 from goodwe_connector.strategies.power_generation_between_dates import PowerGenerationBetweenDays
 from goodwe_connector.strategies.power_generation_between_dates_to_csv import PowerGenerationBetweenDaysToCsv
-from goodwe_connector.goodwe_context import GoodweContext
-JSON_CREDENTIALS_CONFIG_FILE = 'goodwe_config.json'
 
 def read_json_config(confg_file_name) -> dict:
     
@@ -52,29 +52,29 @@ def main():
         goodwe_api=goodweapi,
         strategy=PowerGenerationPerDay(date=datetime.datetime(2023, 8, 2)))
     
-    data = context.do_some_business_logic()
+    data = context.process()
     print(json.dumps(data, indent = 4))
     
     # 2: Get power generation between range of days.
     
     context.strategy = PowerGenerationBetweenDays(
         start_date=datetime.datetime(2023, 8, 1),
-        end_date=datetime.datetime(2023, 8, 2)
+        end_date=datetime.datetime(2023, 8, 3)
     )
     
-    data = context.do_some_business_logic()
+    data = context.process()
     print(json.dumps(data, indent = 4))
 
     # 3: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerGenerationBetweenDaysToCsv(
         start_date=datetime.datetime(2023, 8, 1),
-        end_date=datetime.datetime(2023, 8, 2),
+        end_date=datetime.datetime(2023, 8, 3),
         file_name='./simple_test.csv',
         show_info=True
     )
 
-    data = context.do_some_business_logic()
+    data = context.process()
 
     # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
     # __get_power_station_monitor_detail(goodweapi, year=2022, month=12)

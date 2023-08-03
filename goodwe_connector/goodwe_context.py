@@ -31,7 +31,7 @@ class GoodweContext():
 
         self._strategy = strategy
 
-    def do_some_business_logic(self) -> object:
+    def process(self) -> object:
 
         result = self._strategy.do_algorithm(self.__goodwe_api)
     

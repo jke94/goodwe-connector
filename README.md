@@ -37,16 +37,24 @@ Example of goodwe_config.json
 ```
 ### A.3. Open example.py and edit to call the goodew_connector package functions:
 
-Run the example.py with python:
+Run the sample.py with python:
 
-Script execution with linux file:
+Define the extrategy that you want launch and running python script file:
 ```
-python3 example.py
+python3 sample.py
 ```
 
 Similar ouput like this:
 ```
-Day 14/02/2023	Power Generated: 9.1 kW
+{
+    "2023-08-02": 10.7
+}
+Generated 36.70 kWh (avg. 12.23 kWh per day) in 3 days.
+{
+    "2023-08-01": 14.5,
+    "2023-08-02": 10.7,
+    "2023-08-03": 11.5
+}
 ```
 ## B. Generate documentation.
 

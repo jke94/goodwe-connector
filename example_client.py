@@ -11,6 +11,7 @@ from goodwe_connector.strategies.power_generation_per_day import PowerGeneration
 from goodwe_connector.strategies.power_generation_between_dates import PowerGenerationBetweenDays
 from goodwe_connector.strategies.power_generation_between_dates_to_csv import PowerGenerationBetweenDaysToCsv
 from goodwe_connector.strategies.power_station_monitor_detail import PowerStationMonitorDetail
+from goodwe_connector.strategies.power_station_generated_every_five_minutes_per_day import PowerStationGeneratedEveryFiveMinutesPerDay
 
 def read_json_config(confg_file_name) -> dict:
     
@@ -47,7 +48,7 @@ def main():
         password=password,
         logging=True)
 
-    # 1: Get power generation a specific day.
+    # STRATEGY 1 of 5: Get power generation a specific day.
     
     context = GoodweContext(
         goodwe_api=goodweapi,
@@ -56,7 +57,7 @@ def main():
     data = context.process()
     print(json.dumps(data, indent = 4))
     
-    # 2: Get power generation between range of days.
+    # STRATEGY 2 of 5: Get power generation between range of days.
     
     context.strategy = PowerGenerationBetweenDays(
         start_date=datetime.datetime(2023, 8, 1),
@@ -66,7 +67,7 @@ def main():
     data = context.process()
     print(json.dumps(data, indent = 4))
 
-    # 3: Get power generation between range of days and save in CSV file.
+    # STRATEGY 3 of 5: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerGenerationBetweenDaysToCsv(
         start_date=datetime.datetime(2023, 8, 1),
@@ -77,7 +78,7 @@ def main():
 
     data = context.process()
     
-    # 4: Get power generation between range of days and save in CSV file.
+    # STRATEGY 4 of 5: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerStationMonitorDetail(
         year=2023,
@@ -86,8 +87,15 @@ def main():
 
     data = context.process()
     print(json.dumps(data, indent = 4))
+    
+    # STRATEGY 5 of 5: Get power generation between range of days and save in CSV file.
 
-    # __get_power_station_generated_every_five_minutes_per_day(goodweapi)
+    context.strategy = PowerStationGeneratedEveryFiveMinutesPerDay(
+        date=datetime.datetime(2023, 8, 2)
+    )
+
+    data = context.process()
+    print(json.dumps(data, indent = 4))
     
     print("--- %s seconds ---" % (time.time() - start_time))
 

@@ -52,27 +52,27 @@ def main():
     
     context = GoodweContext(
         goodwe_api=goodweapi,
-        strategy=PowerGenerationPerDay(date=datetime.datetime(2023, 8, 2)))
+        strategy=PowerGenerationPerDay(date=datetime.datetime(2025, 2, 22)))
     
     data = context.process()
     print(json.dumps(data, indent = 4))
     
     # STRATEGY 2 of 5: Get power generation between range of days.
     
-    context.strategy = PowerGenerationBetweenDays(
-        start_date=datetime.datetime(2023, 8, 1),
-        end_date=datetime.datetime(2023, 8, 3)
-    )
+    # context.strategy = PowerGenerationBetweenDays(
+    #     start_date=datetime.datetime(2025, 1, 1),
+    #     end_date=datetime.datetime(2025, 2, 21)
+    # )
     
-    data = context.process()
-    print(json.dumps(data, indent = 4))
+    # data = context.process()
+    # print(json.dumps(data, indent = 4))
 
     # STRATEGY 3 of 5: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerGenerationBetweenDaysToCsv(
-        start_date=datetime.datetime(2023, 8, 1),
-        end_date=datetime.datetime(2023, 8, 3),
-        file_name='./simple_test.csv',
+        start_date=datetime.datetime(2025, 2, 1),
+        end_date=datetime.datetime(2025, 2, 10),
+        file_name='./enero-febrero-2025.csv',
         show_info=True
     )
 
@@ -81,8 +81,8 @@ def main():
     # STRATEGY 4 of 5: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerStationMonitorDetail(
-        year=2023,
-        month=5
+        year=2025,
+        month=1
     )
 
     data = context.process()
@@ -91,7 +91,7 @@ def main():
     # STRATEGY 5 of 5: Get power generation between range of days and save in CSV file.
 
     context.strategy = PowerStationGeneratedEveryFiveMinutesPerDay(
-        date=datetime.datetime(2023, 8, 2)
+        date=datetime.datetime(2025, 1, 10)
     )
 
     data = context.process()

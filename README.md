@@ -5,9 +5,9 @@ A python library to connect with Goodwe API Rest and get production data of sola
 
 ## A. How to use...
 
-### A.1. Developer environment: Create virtual environment and install requirements.txt
+### A.1. Developer environment: Create virtual environment and install `requirements.txt`
 
-1. Create virtual envinroment:
+1. Create virtual envinroment using `pip`:
 
 ```
 python -m venv .\venv
@@ -15,10 +15,10 @@ python -m venv .\venv
 2. Install requirements.txt.
 
 ```
- pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-### A.2. Create JSON file 'goodwe_config.json' like this (base repository path), with the following fields:
+### A.2. Create JSON file `goodwe_config.json` like this (base repository path), with the following fields:
 
 - System Id
 - Account
@@ -35,9 +35,9 @@ Example of goodwe_config.json
     }
 }
 ```
-### A.3. Open sample.py and edit to call the goodew_connector package functions:
+### A.3. Open `sample.py` and edit to call the goodew_connector package functions:
 
-Run the sample.py with python:
+Run the `sample.py` with python:
 
 Define the extrategy that you want launch and running python script file:
 ```

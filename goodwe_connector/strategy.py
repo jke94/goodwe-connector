@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from goodwe_connector.goodwe_api import GoodweApi
-# from goodwe_connector.goodwe_api import GoodweApi
 from typing import List
 
 class Strategy(ABC):

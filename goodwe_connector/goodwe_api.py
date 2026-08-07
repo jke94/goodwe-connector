@@ -5,8 +5,7 @@ from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
 from goodwe_connector.goodwe_api_controller.v2.power_station import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_controller.v0.power_station_monitor import GetPowerStationPacByDayForApp
 from goodwe_connector.goodwe_api_methods import ReportDataV1GetPowerStationPowerReportDetialByMonth
-import pandas as pd
-import requests
+from goodwe_connector.data_transformers import format_generation_summary, parse_daily_generation, parse_generation_series, write_generation_to_csv
 from requests.exceptions import RequestException
 
 class GoodweApi(GoodweApiAuth):
@@ -17,11 +16,12 @@ class GoodweApi(GoodweApiAuth):
                  system_id:str, 
                  account:str, 
                  password:str, 
-                 logging=False) -> None:
+                 logging=False,
+                 http_client=None) -> None:
         
         self.__n_max_request_retry = 5
         
-        super().__init__(system_id, account, password,logging)
+        super().__init__(system_id, account, password, logging, http_client=http_client)
 
     def __call(self, url, payload) -> dict:
         
@@ -35,10 +35,10 @@ class GoodweApi(GoodweApiAuth):
                 'Token': self._credentials,
             }
             
-            request = requests.post(
-                self.base_url + url, 
-                headers=headers, 
-                data=payload, 
+            request = self._http_client.post(
+                self.base_url + url,
+                payload=payload,
+                headers=headers,
                 timeout=10)
             
             request.raise_for_status()
@@ -87,18 +87,7 @@ class GoodweApi(GoodweApiAuth):
             if not data:
                 self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
-        # Parsing data to extract the correct day.
-        for day in data:
-            if day['d'] == date.strftime('%m/%d/%Y'):
-                
-                Key_date = date.strftime('%Y-%m-%d')
-                value = day['p']
-                
-                generation[Key_date] = value
-                
-                return generation
-
-        return generation
+        return parse_daily_generation(data, date)
     
     # TODO: Pending to move this logic to power_generation_between_dates_to_csv.py
     def get_power_generation_between_dates_to_csv(self, 
@@ -138,16 +127,10 @@ class GoodweApi(GoodweApiAuth):
             count_request = 0
             data = {}
         
-        dataframe = pd.DataFrame(generation.items(), columns=['Date', 'ProductionkWh'])
-        
-        dataframe.to_csv(file_name, index=False, sep=";", decimal=",")
+        write_generation_to_csv(generation, file_name)
         
         if show_info:
-            average = sum(generation.values())/len(generation.keys())
-            average_str = '{:.2f}'.format(average)
-            total_power_generated = '{:.2f}'.format(sum(generation.values()))
-            
-            print(f'Generated {total_power_generated} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
+            print(format_generation_summary(generation))
     
     # TODO: Pending to move this logic to power_generation_between_dates.py
     def get_power_generation_between_dates(self, 
@@ -185,11 +168,7 @@ class GoodweApi(GoodweApiAuth):
             count_request = 0
             data = {}
         
-        average = sum(generation.values())/len(generation.keys())
-        average_str = '{:.2f}'.format(average)
-        total_power_generated = '{:.2f}'.format(sum(generation.values()))
-        
-        print(f'Generated {total_power_generated} kWh (avg. {average_str} kWh per day) in {len(generation.keys())} days.')
+        print(format_generation_summary(generation))
         
         return generation
     

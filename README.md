@@ -1,5 +1,10 @@
 # goodwe-connector
-![image](https://user-images.githubusercontent.com/53972851/221367514-63997c8c-b491-467b-996b-0407ff98ffba.png)
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/53972851/221367514-63997c8c-b491-467b-996b-0407ff98ffba.png" alt="Goodwe connector logo" />
+</p>
+
+![Unit tests](https://github.com/javi/goodwe-connector/actions/workflows/unit-tests.yml/badge.svg)
 
 A python library to connect with Goodwe API Rest and get production data of solar panels.
 
@@ -56,7 +61,15 @@ Generated 36.70 kWh (avg. 12.23 kWh per day) in 3 days.
     "2023-08-03": 11.5
 }
 ```
-## B. Generate documentation.
+## B. Run unit tests
+
+Install the test dependency and execute the suite:
+
+```
+pytest -q tests
+```
+
+## C. Generate documentation.
 
 - Build documentation:
 

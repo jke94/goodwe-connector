@@ -56,7 +56,15 @@ Generated 36.70 kWh (avg. 12.23 kWh per day) in 3 days.
     "2023-08-03": 11.5
 }
 ```
-## B. Generate documentation.
+## B. Run unit tests
+
+Install the test dependency and execute the suite:
+
+```
+pytest -q tests
+```
+
+## C. Generate documentation.
 
 - Build documentation:
 

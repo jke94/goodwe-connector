@@ -1,10 +1,10 @@
 from json import JSONDecodeError
 import json
-import requests
 from requests.exceptions import RequestException
 from goodwe_connector.goodwe_constants import GOODWE_API_URL
 from goodwe_connector.goodwe_api_methods import v2CommonCrossLogin
 from goodwe_connector.goodwe_logger.goodwe_api_logger import GoodweApiLogger
+from goodwe_connector.http import RequestsHttpClient
 
 class GoodweApiAuth:
 
@@ -12,7 +12,8 @@ class GoodweApiAuth:
                  system_id:str, 
                  account:str, 
                  password:str, 
-                 logging=False) -> None:
+                 logging=False,
+                 http_client=None) -> None:
         
         self.__headers = {
             'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
@@ -27,6 +28,7 @@ class GoodweApiAuth:
         self._credentials = ''
         
         self._logger = GoodweApiLogger(isLogging=logging)
+        self._http_client = http_client or RequestsHttpClient()
         
     def _authorization(self) -> bool:
         
@@ -37,10 +39,10 @@ class GoodweApiAuth:
                 'pwd': self.password,
             }
             
-            authrequest = requests.post(
-            self.__global_url + v2CommonCrossLogin, 
-            headers=self.__headers, 
-            data=loginPayload, 
+            authrequest = self._http_client.post(
+            self.__global_url + v2CommonCrossLogin,
+            payload=loginPayload,
+            headers=self.__headers,
             timeout=10)
             
             authrequest.raise_for_status()

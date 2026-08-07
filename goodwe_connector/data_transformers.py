@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -14,12 +14,23 @@ def parse_daily_generation(data: Iterable[dict], target_date: datetime) -> dict:
     return {}
 
 
-def parse_generation_series(data: Iterable[dict], start_date: datetime) -> dict:
+def parse_generation_series(data: Iterable[dict], start_date: datetime, end_date: Optional[datetime] = None) -> dict:
     generation: Dict[str, float] = {}
 
-    for day in data:
-        if day.get("d") == start_date.strftime("%m/%d/%Y"):
-            generation[start_date.strftime("%Y-%m-%d")] = day.get("p")
+    if end_date is None:
+        end_date = start_date
+
+    current_date = start_date
+    while current_date <= end_date:
+        target_date = current_date.strftime("%m/%d/%Y")
+
+        for day in data:
+            if day.get("d") == target_date:
+                generation[current_date.strftime("%Y-%m-%d")] = day.get("p")
+                break
+
+        current_date += timedelta(days=1)
+
     return generation
 
 

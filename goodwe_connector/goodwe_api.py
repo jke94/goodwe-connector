@@ -57,7 +57,21 @@ class GoodweApi(GoodweApiAuth):
         except RequestException as e:
             self._logger.warning(f'{e}')
             return None
-        
+
+    def _request_daily_generation(self, payload: dict) -> dict:
+        count_request = 0
+        data = {}
+
+        while(not data and count_request < self.__n_max_request_retry):
+            count_request += 1
+            method = GetPowerStationPowerAndIncomeByDay
+            data = self.__call(method, payload)
+
+            if not data:
+                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+
+        return data
+    
     # TODO: Pending to move this logic to power_generation_per_day.py
     def get_power_generation_per_day(self, date:datetime) -> dict:
         """_summary_
@@ -71,21 +85,11 @@ class GoodweApi(GoodweApiAuth):
         
         payload = {
             'powerstation_id' : self.system_id,
-            'date' : date.strftime('%Y-%m-%d')
+            'date' : date.strftime('%Y-%m-%d'),
+            'count': 1,
         }
         
-        generation = {}
-        count_request = 0
-        data = {}
-        
-        while(not data and count_request < self.__n_max_request_retry):
-        
-            count_request += 1
-            method = GetPowerStationPowerAndIncomeByDay
-            data = self.__call(method, payload)
-        
-            if not data:
-                self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+        data = self._request_daily_generation(payload)
 
         return parse_daily_generation(data, date)
     
@@ -96,36 +100,22 @@ class GoodweApi(GoodweApiAuth):
                                            file_name:str,
                                            show_info:bool = True) -> None:
         generation = {}
+        total_days = (end_date - start_date).days + 1
         
-        delta = timedelta(days=1)
+        if total_days <= 0:
+            write_generation_to_csv(generation, file_name)
+            if show_info:
+                print(format_generation_summary(generation))
+            return
 
-        while start_date <= end_date:
-            
-            payload = {
-                'powerstation_id' : self.system_id,
-                'date' : start_date.strftime('%Y-%m-%d')
-            }
-            
-            count_request = 0
-            data = {}
-            
-            while(not data and count_request < self.__n_max_request_retry):
-            
-                count_request += 1
-                method = GetPowerStationPowerAndIncomeByDay
-                data = self.__call(method, payload)
-            
-                if not data:
-                    self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+        payload = {
+            'powerstation_id' : self.system_id,
+            'date' : end_date.strftime('%Y-%m-%d'),
+            'count': total_days,
+        }
 
-            # Parsing data and extracting day.
-            for day in data:
-                if day['d'] == start_date.strftime('%m/%d/%Y'):
-                    generation[start_date.strftime('%Y-%m-%d')] = day['p']
-            
-            start_date += delta
-            count_request = 0
-            data = {}
+        data = self._request_daily_generation(payload)
+        generation = parse_generation_series(data, start_date, end_date)
         
         write_generation_to_csv(generation, file_name)
         
@@ -136,37 +126,21 @@ class GoodweApi(GoodweApiAuth):
     def get_power_generation_between_dates(self, 
                                            start_date:datetime, 
                                            end_date:datetime) -> dict:
+        total_days = (end_date - start_date).days + 1
         generation = {}
-        
-        delta = timedelta(days=1)
 
-        while start_date <= end_date:
-            
-            payload = {
-                'powerstation_id' : self.system_id,
-                'date' : start_date.strftime('%Y-%m-%d')
-            }
-            
-            count_request = 0
-            data = {}
-            
-            while(not data and count_request < self.__n_max_request_retry):
-            
-                count_request += 1
-                method = GetPowerStationPowerAndIncomeByDay
-                data = self.__call(method, payload)
-            
-                if not data:
-                    self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
+        if total_days <= 0:
+            print(format_generation_summary(generation))
+            return generation
 
-            # Parsing data and extracting day.
-            for day in data:
-                if day['d'] == start_date.strftime('%m/%d/%Y'):
-                    generation[start_date.strftime('%Y-%m-%d')] = day['p']
-            
-            start_date += delta
-            count_request = 0
-            data = {}
+        payload = {
+            'powerstation_id' : self.system_id,
+            'date' : end_date.strftime('%Y-%m-%d'),
+            'count': total_days,
+        }
+
+        data = self._request_daily_generation(payload)
+        generation = parse_generation_series(data, start_date, end_date)
         
         print(format_generation_summary(generation))
         

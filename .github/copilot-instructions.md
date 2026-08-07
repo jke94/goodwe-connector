@@ -17,6 +17,16 @@ Pending to implement coding guidelines. For now, please follow PEP 8 and PEP 257
 
 ## Commands
 
+Peding to implement commands. For now, please refer to the README.md for instructions on how to use the package.
+
+## Documentation
+
+The projects uses `mkdocs` for documentation. You can build the documentation locally using the following command:
+
+```
+mkdocs build
+```
+
 ## Testing Philosophy
 
 - Use pytest for unit tests.

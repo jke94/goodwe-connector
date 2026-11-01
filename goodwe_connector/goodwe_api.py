@@ -1,6 +1,7 @@
 from datetime import datetime
-from datetime import timedelta
+from datetime import date as calendar_date
 from json import JSONDecodeError
+from json import loads
 from goodwe_connector.goodwe_auth.goodwe_api_authorization import GoodweApiAuth
 from goodwe_connector.goodwe_api_controller.v2.power_station import GetPowerStationPowerAndIncomeByDay
 from goodwe_connector.goodwe_api_controller.v0.power_station_monitor import GetPowerStationPacByDayForApp
@@ -24,32 +25,34 @@ class GoodweApi(GoodweApiAuth):
         super().__init__(system_id, account, password, logging, http_client=http_client)
 
     def __call(self, url, payload) -> dict:
-        
+        request = None
         try:
-            
             if not self._authorization():
                 return None
-            
-            headers = {
-                'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-                'Token': self._credentials,
-            }
-            
+
+            headers = self._request_headers(loads(self._credentials))
             request = self._http_client.post(
                 self.base_url + url,
                 payload=payload,
                 headers=headers,
-                timeout=10)
-            
+                timeout=10,
+                json_body=url == GetPowerStationPowerAndIncomeByDay,
+            )
             request.raise_for_status()
-            
             self._logger.info(f'Method request elapsed seconds: {request.elapsed}')
-            
-            data = request.json()
-            request.close()
-            
-            return data['data']
-        
+            response = request.json()
+            if not isinstance(response, dict):
+                self._logger.warning("SEMS+ API returned an unexpected response.")
+                return None
+            if str(response.get("code")) not in {"0", "00000"}:
+                self._logger.warning(
+                    "SEMS+ API request failed (code=%s): %s",
+                    response.get("code"),
+                    response.get("msg"),
+                )
+                return None
+            return response.get("data")
+
         except JSONDecodeError as json_decoder_error:
             self._logger.warning(f'{json_decoder_error}')
             return None
@@ -57,6 +60,9 @@ class GoodweApi(GoodweApiAuth):
         except RequestException as e:
             self._logger.warning(f'{e}')
             return None
+        finally:
+            if request is not None:
+                request.close()
 
     def _request_daily_generation(self, payload: dict) -> dict:
         count_request = 0
@@ -70,7 +76,56 @@ class GoodweApi(GoodweApiAuth):
             if not data:
                 self._logger.warning(f'Request count={count_request}, Method: {method}, missing data.')
 
-        return data
+        if data is None:
+            raise RuntimeError(
+                "SEMS+ daily generation request returned no data after "
+                f"{self.__n_max_request_retry} attempts; see the connector log."
+            )
+
+        if not isinstance(data, dict):
+            return data
+
+        generation = []
+        series_list = data.get("dataList", [])
+        if not isinstance(series_list, list):
+            self._logger.warning("SEMS+ daily statistics contained an invalid series list.")
+            return generation
+
+        for series in series_list:
+            if not isinstance(series, dict):
+                self._logger.warning("Skipping malformed SEMS+ daily statistic series.")
+                continue
+            if series.get("item") != "proSystemTotalStats":
+                continue
+            points = series.get("statisticsList", [])
+            if not isinstance(points, list):
+                self._logger.warning("Skipping malformed SEMS+ daily statistic series.")
+                continue
+            for point in points:
+                if not isinstance(point, dict):
+                    self._logger.warning("Skipping malformed SEMS+ daily statistic.")
+                    continue
+                try:
+                    point_date = calendar_date.fromisoformat(point["date"][:10])
+                    power = float(point["val"])
+                except (KeyError, TypeError, ValueError):
+                    self._logger.warning("Skipping malformed SEMS+ daily statistic.")
+                    continue
+                generation.append({
+                    "d": point_date.strftime("%m/%d/%Y"),
+                    "p": power,
+                })
+        return generation
+
+    def _daily_generation_payload(self, start_date: datetime, end_date: datetime) -> dict:
+        return {
+            "stationId": self.system_id,
+            "isReport": False,
+            "items": ["proSystemTotalStats"],
+            "dimension": "day",
+            "startTime": f"{start_date:%Y-%m-%d} 00:00:00",
+            "endTime": f"{end_date:%Y-%m-%d} 23:59:59",
+        }
     
     # TODO: Pending to move this logic to power_generation_per_day.py
     def get_power_generation_per_day(self, date:datetime) -> dict:
@@ -83,11 +138,7 @@ class GoodweApi(GoodweApiAuth):
             float: _description_
         """
         
-        payload = {
-            'powerstation_id' : self.system_id,
-            'date' : date.strftime('%Y-%m-%d'),
-            'count': 1,
-        }
+        payload = self._daily_generation_payload(date, date)
         
         data = self._request_daily_generation(payload)
 
@@ -108,11 +159,7 @@ class GoodweApi(GoodweApiAuth):
                 print(format_generation_summary(generation))
             return
 
-        payload = {
-            'powerstation_id' : self.system_id,
-            'date' : end_date.strftime('%Y-%m-%d'),
-            'count': total_days,
-        }
+        payload = self._daily_generation_payload(start_date, end_date)
 
         data = self._request_daily_generation(payload)
         generation = parse_generation_series(data, start_date, end_date)
@@ -133,11 +180,7 @@ class GoodweApi(GoodweApiAuth):
             print(format_generation_summary(generation))
             return generation
 
-        payload = {
-            'powerstation_id' : self.system_id,
-            'date' : end_date.strftime('%Y-%m-%d'),
-            'count': total_days,
-        }
+        payload = self._daily_generation_payload(start_date, end_date)
 
         data = self._request_daily_generation(payload)
         generation = parse_generation_series(data, start_date, end_date)

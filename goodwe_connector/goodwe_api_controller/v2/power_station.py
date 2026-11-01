@@ -1,1 +1,1 @@
-GetPowerStationPowerAndIncomeByDay = "v2/PowerStationMonitor/GetPowerStationPowerAndIncomeByDay"
+GetPowerStationPowerAndIncomeByDay = "/sems-plant/api/stations/statistics"

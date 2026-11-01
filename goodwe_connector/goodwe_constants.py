@@ -1,8 +1,11 @@
-GOODWE_API_URL = 'https://semsportal.com/api/'
-GOODWE_API_TOKEN = '{"version":"v3.1","client":"ios","language":"en"}'
-GOODWE_API_HEADER = {
-    'User-Agent': 'SEMS Portal/3.1 (iPhone; iOS 13.5.1; Scale/2.00)',
-    'Token': '{"version":"v3.1","client":"ios","language":"en"}'
-    }
+GOODWE_SEMS_PLUS_LOGIN_URL = (
+    "https://semsplus.goodwe.com/web/sems/sems-user/api/v1/auth/cross-login"
+)
+GOODWE_SEMS_PLUS_API_URL = "https://eu-gateway.semsportal.com/web/sems"
+GOODWE_SEMS_PLUS_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/126.0.0.0 Safari/537.36"
+)
 
 JSON_CREDENTIALS_CONFIG_FILE = 'goodwe_config.json'

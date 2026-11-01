@@ -40,6 +40,14 @@ Example of goodwe_config.json
     }
 }
 ```
+
+Daily production requests use the SEMS+ web API. The `system_id` value must be
+the station ID available to the configured SEMS+ account. Authentication uses
+the account and password configured above.
+
+The five-minute generation and monthly monitor-detail operations have not yet
+been migrated to SEMS+ and may not work with SEMS+ accounts.
+
 ### A.3. Open `sample.py` and edit to call the goodew_connector package functions:
 
 Run the `sample.py` with python:

@@ -77,20 +77,6 @@ Install the test dependency and execute the suite:
 pytest -q tests
 ```
 
-## C. Generate documentation.
-
-- Build documentation:
-
-```
-mkdocs build
-```
-
-- Serve:
-
-```
-mkdocs serve
-```
-
 ## C. Extra information: Goodew Api
 
 Goodwe Api information:

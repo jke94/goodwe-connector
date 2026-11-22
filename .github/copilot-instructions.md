@@ -21,11 +21,9 @@ Peding to implement commands. For now, please refer to the README.md for instruc
 
 ## Documentation
 
-The projects uses `mkdocs` for documentation. You can build the documentation locally using the following command:
-
-```
-mkdocs build
-```
+The repository documentation is maintained as Copilot instruction files under
+`.github/instructions/`. Follow the instruction file whose `applyTo` glob matches
+the files involved in the task.
 
 ## Testing Philosophy
 

@@ -1,1 +1,0 @@
-::: goodwe_connector.goodwe_api
